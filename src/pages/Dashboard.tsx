@@ -120,6 +120,11 @@ const advisories = useMemo(() => {
     }
   };
 
+  const dayKey = (abbr: string) => {
+    const map: Record<string, keyof ReturnType<typeof Object>> = { Mon: "mon", Tue: "tue", Wed: "wed", Thu: "thu", Fri: "fri", Sat: "sat", Sun: "sun" } as any;
+    return map[abbr] || abbr.toLowerCase();
+  };
+
   return (
     <div className="min-h-screen">
       <header className="px-6 pt-6 pb-2 flex items-start justify-between gap-3">
@@ -153,7 +158,7 @@ const advisories = useMemo(() => {
             {sampleForecast.map((d) => (
               <Card key={d.day}>
                 <CardContent className="py-4 flex flex-col items-center gap-1">
-                  <div className="text-sm text-muted-foreground">{d.day}</div>
+                  <div className="text-sm text-muted-foreground">{t(`days.short.${dayKey(d.day)}`)}</div>
                   <div className="w-6 h-6">{IconFor(d.icon)}</div>
                   <div className="text-sm font-medium">{d.high}° / {d.low}°</div>
                 </CardContent>

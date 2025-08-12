@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import OnboardingLocation from "./pages/OnboardingLocation";
 import OnboardingCrop from "./pages/OnboardingCrop";
 import Dashboard from "./pages/Dashboard";
+import LanguageSelect from "./pages/LanguageSelect";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<LanguageSelect />} />
+            <Route path="/language" element={<LanguageSelect />} />
+            <Route path="/welcome" element={<Index />} />
             <Route path="/onboarding/location" element={<OnboardingLocation />} />
             <Route path="/onboarding/crop" element={<OnboardingCrop />} />
             <Route path="/dashboard" element={<Dashboard />} />

@@ -39,7 +39,7 @@ const OnboardingCrop = () => {
               </SelectTrigger>
               <SelectContent>
                 {crops.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                  <SelectItem key={c} value={c}>{t(`crops.${c}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

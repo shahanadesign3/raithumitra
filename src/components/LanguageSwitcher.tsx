@@ -15,6 +15,10 @@ const LanguageSwitcher = () => {
         <DropdownMenuRadioGroup value={lang} onValueChange={(v) => setLang(v as any)}>
           <DropdownMenuRadioItem value="en">{t("common.english")}</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="te">{t("common.telugu")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="hi">{t("common.hindi")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="mr">{t("common.marathi")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="ta">{t("common.tamil")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="kn">{t("common.kannada")}</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

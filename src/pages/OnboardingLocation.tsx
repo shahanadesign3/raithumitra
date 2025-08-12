@@ -9,7 +9,7 @@ import { useI18n } from "@/i18n/i18n";
 
 const OnboardingLocation = () => {
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const defaultState = "Andhra Pradesh";
   const [stateSel, setStateSel] = useState<string>(defaultState);
@@ -61,7 +61,7 @@ const OnboardingLocation = () => {
               </SelectTrigger>
               <SelectContent>
                 {IN_STATES.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                  <SelectItem key={s} value={s}>{lang === "en" ? s : t(`states.${s}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -75,7 +75,7 @@ const OnboardingLocation = () => {
               </SelectTrigger>
               <SelectContent>
                 {cities.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                  <SelectItem key={c} value={c}>{lang === "en" ? c : (t(`cities.AP.${c}`) || c)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
