@@ -39,7 +39,7 @@ const OnboardingCrop = () => {
       if (!rows.length) {
         const { data: stateOnly } = await supabase
           .from("crop_data")
-          .select("crop_name_english, crop_name_telugu")
+          .select("crop_name_english, crop_name_telugu, state_english, village_english")
           .eq("state_english", state)
           .order("crop_name_english", { ascending: true });
         rows = stateOnly || [];
