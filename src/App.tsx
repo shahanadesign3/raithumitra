@@ -10,6 +10,7 @@ import OnboardingLocation from "./pages/OnboardingLocation";
 import OnboardingCrop from "./pages/OnboardingCrop";
 import Dashboard from "./pages/Dashboard";
 import LanguageSelect from "./pages/LanguageSelect";
+import FCMInitializer from "@/components/FCMInitializer";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
       <I18nProvider>
         <Toaster />
         <Sonner />
+        <FCMInitializer />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LanguageSelect />} />
