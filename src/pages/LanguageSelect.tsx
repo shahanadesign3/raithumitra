@@ -19,7 +19,7 @@ const LanguageSelect = () => {
   const [showConsent, setShowConsent] = useState(false);
 
   useEffect(() => {
-    document.title = `Raithu Mitra — ${t("languageSelect.title")}`;
+    document.title = `${t("index.title")} — ${t("languageSelect.title")}`;
   }, [t]);
 
   const onChoose = (code: string) => {
@@ -44,7 +44,7 @@ const LanguageSelect = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 pb-16">
       <header className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight">Raithu Mitra</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">{t("index.title")}</h1>
         <p className="text-muted-foreground mt-2">{t("languageSelect.title")}</p>
       </header>
 

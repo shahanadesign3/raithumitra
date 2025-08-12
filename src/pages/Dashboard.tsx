@@ -128,6 +128,7 @@ const advisories = useMemo(() => {
     <div className="min-h-screen">
       <header className="px-6 pt-6 pb-2 flex items-start justify-between gap-3">
         <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("index.title")}</div>
           <h1 className="text-2xl font-bold">{location || t("dashboard.notSet")}</h1>
           <p className="text-muted-foreground">{t("dashboard.primaryCropLabel", { crop: crop || t("dashboard.notSet") })}</p>
         </div>
