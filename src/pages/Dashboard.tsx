@@ -120,11 +120,10 @@ const advisories = useMemo(() => {
     }
   };
 
-  const dayKey = (abbr: string) => {
-    const map: Record<string, keyof ReturnType<typeof Object>> = { Mon: "mon", Tue: "tue", Wed: "wed", Thu: "thu", Fri: "fri", Sat: "sat", Sun: "sun" } as any;
+  const dayKey = (abbr: string): string => {
+    const map: Record<string, string> = { Mon: "mon", Tue: "tue", Wed: "wed", Thu: "thu", Fri: "fri", Sat: "sat", Sun: "sun" };
     return map[abbr] || abbr.toLowerCase();
   };
-
   return (
     <div className="min-h-screen">
       <header className="px-6 pt-6 pb-2 flex items-start justify-between gap-3">
