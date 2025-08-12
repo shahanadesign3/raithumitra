@@ -6,6 +6,7 @@ import { Sun, CloudRain, Thermometer, Wind, Droplets, Sprout, ShieldAlert } from
 import { toast } from "@/hooks/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/i18n/i18n";
+import { useWeather } from "@/hooks/useWeather";
 
 type ForecastDay = {
   day: string;
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const [alertsEnabled, setAlertsEnabled] = useState<"granted" | "denied" | "default">("default");
+  const { current, forecast, loading, error } = useWeather();
 
   const location = localStorage.getItem("userLocation");
   const crop = localStorage.getItem("cropType");
@@ -66,9 +68,11 @@ const enableAlerts = async () => {
 };
 
 const advisories = useMemo(() => {
-  const rainSoon = sampleForecast.some((d) => d.rainChance >= 70);
-  const highWind = sampleForecast.some((d) => d.wind >= 20);
-  const goodPlanting = sampleWeather.temp >= 20 && sampleWeather.temp <= 32 && !highWind;
+  const fc = (forecast && forecast.length > 0 ? forecast : sampleForecast);
+  const ct = current ?? sampleWeather;
+  const rainSoon = fc.some((d) => d.rainChance >= 70);
+  const highWind = fc.some((d) => d.wind >= 20);
+  const goodPlanting = ct.temp >= 20 && ct.temp <= 32 && !highWind;
 
   const cropLabel = crop || t("dashboard.notSet");
 
@@ -76,7 +80,7 @@ const advisories = useMemo(() => {
     goodPlanting
       ? {
           title: t("dashboard.advisory.planting.goodTitle", { crop: cropLabel }),
-          desc: t("dashboard.advisory.planting.goodDesc", { temp: sampleWeather.temp, feels: sampleWeather.feelsLike }),
+          desc: t("dashboard.advisory.planting.goodDesc", { temp: ct.temp, feels: ct.feelsLike }),
           Icon: Sprout,
         }
       : {
@@ -107,7 +111,16 @@ const advisories = useMemo(() => {
           Icon: ShieldAlert,
         },
   ];
-}, [crop]);
+}, [forecast, current, crop, t]);
+
+  const conditionKey = useMemo(() => {
+    const main = current?.main;
+    const desc = (current?.description || "").toLowerCase();
+    if (main === "Clear") return "Sunny";
+    if (main === "Clouds") return "Clouds";
+    if (main === "Rain" || main === "Drizzle") return desc.includes("heavy") ? "Heavy Rain" : "Light Rain";
+    return main || "Sunny";
+  }, [current]);
 
   const IconFor = (name: ForecastDay["icon"]) => {
     switch (name) {
@@ -141,13 +154,13 @@ const advisories = useMemo(() => {
             <CardTitle className="text-xl">{t("dashboard.currentWeather")}</CardTitle>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Thermometer className="" />
-              <span>{sampleWeather.temp}°C</span>
+              <span>{(current?.temp ?? sampleWeather.temp)}°C</span>
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-            <div className="flex items-center gap-3"><Sun className="text-primary" /><div><div className="font-semibold">{t(`dashboard.conditions.${sampleWeather.condition}`)}</div><div className="text-sm text-muted-foreground">{t("dashboard.labels.feelsLike", { temp: sampleWeather.feelsLike })}</div></div></div>
-            <div className="flex items-center gap-3"><Wind className="text-primary" /><div><div className="font-semibold">{t("dashboard.labels.wind")}</div><div className="text-sm text-muted-foreground">{sampleWeather.wind} km/h</div></div></div>
-            <div className="flex items-center gap-3"><Droplets className="text-primary" /><div><div className="font-semibold">{t("dashboard.labels.humidity")}</div><div className="text-sm text-muted-foreground">{sampleWeather.humidity}%</div></div></div>
+            <div className="flex items-center gap-3"><Sun className="text-primary" /><div><div className="font-semibold">{t(`dashboard.conditions.${conditionKey}`)}</div><div className="text-sm text-muted-foreground">{t("dashboard.labels.feelsLike", { temp: (current?.feelsLike ?? sampleWeather.feelsLike) })}</div></div></div>
+            <div className="flex items-center gap-3"><Wind className="text-primary" /><div><div className="font-semibold">{t("dashboard.labels.wind")}</div><div className="text-sm text-muted-foreground">{(current?.wind_kmh ?? sampleWeather.wind)} km/h</div></div></div>
+            <div className="flex items-center gap-3"><Droplets className="text-primary" /><div><div className="font-semibold">{t("dashboard.labels.humidity")}</div><div className="text-sm text-muted-foreground">{(current?.humidity ?? sampleWeather.humidity)}%</div></div></div>
           </CardContent>
         </Card>
 
@@ -155,7 +168,7 @@ const advisories = useMemo(() => {
         <section>
           <h2 className="text-lg font-semibold mb-3">{t("dashboard.forecast")}</h2>
           <div className="grid grid-cols-5 gap-2 sm:gap-4">
-            {sampleForecast.map((d) => (
+            {(forecast.length ? forecast : sampleForecast).map((d) => (
               <Card key={d.day}>
                 <CardContent className="py-4 flex flex-col items-center gap-1">
                   <div className="text-sm text-muted-foreground">{t(`days.short.${dayKey(d.day)}`)}</div>

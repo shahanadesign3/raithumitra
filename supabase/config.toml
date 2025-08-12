@@ -1,1 +1,10 @@
 project_id = "fmuicnlptuhrqzqjmnwr"
+
+[functions.guest-profile]
+verify_jwt = false
+
+[functions.weather]
+verify_jwt = false
+
+[functions.weather-alerts]
+verify_jwt = false

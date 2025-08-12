@@ -44,7 +44,7 @@ serve(async (req) => {
     return jsonResponse(400, { error: "Invalid JSON body" });
   }
 
-  const { id, selected_language, state, village, preferred_crop } = body || {};
+  const { id, selected_language, state, village, preferred_crop, fcm_token } = body || {};
   if (!id || typeof id !== "string") {
     return jsonResponse(400, { error: "Missing id" });
   }
@@ -65,6 +65,7 @@ serve(async (req) => {
         state: state ?? null,
         village: village ?? null,
         preferred_crop: preferred_crop ?? null,
+        fcm_token: fcm_token ?? null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "id" }
