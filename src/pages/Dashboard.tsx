@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sun, CloudRain, Thermometer, Wind, Droplets, Sprout, ShieldAlert } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n/i18n";
 
 type ForecastDay = {
   day: string;
@@ -32,6 +34,7 @@ const sampleForecast: ForecastDay[] = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [alertsEnabled, setAlertsEnabled] = useState<"granted" | "denied" | "default">("default");
 
   const location = localStorage.getItem("userLocation");
@@ -48,61 +51,63 @@ const Dashboard = () => {
     }
   }, []);
 
-  const enableAlerts = async () => {
-    if (typeof Notification === "undefined") {
-      toast({ title: "Alerts unsupported", description: "Your browser does not support notifications." });
-      return;
-    }
-    const perm = await Notification.requestPermission();
-    setAlertsEnabled(perm);
-    if (perm === "granted") {
-      new Notification("Weather alerts enabled", { body: `You'll receive critical alerts for ${location || "your area"}.` });
-    } else {
-      toast({ title: "Alerts disabled", description: "You can change notification permissions in your browser settings." });
-    }
-  };
+const enableAlerts = async () => {
+  if (typeof Notification === "undefined") {
+    toast({ title: t("dashboard.alerts.unsupportedTitle"), description: t("dashboard.alerts.unsupportedDesc") });
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  setAlertsEnabled(perm);
+  if (perm === "granted") {
+    new Notification(t("dashboard.alerts.enabledNotifTitle"), { body: t("dashboard.alerts.enabledNotifBody", { location: location || t("dashboard.notSet") }) });
+  } else {
+    toast({ title: t("dashboard.alerts.disabledTitle"), description: t("dashboard.alerts.disabledDesc") });
+  }
+};
 
-  const advisories = useMemo(() => {
-    const rainSoon = sampleForecast.some((d) => d.rainChance >= 70);
-    const highWind = sampleForecast.some((d) => d.wind >= 20);
-    const goodPlanting = sampleWeather.temp >= 20 && sampleWeather.temp <= 32 && !highWind;
+const advisories = useMemo(() => {
+  const rainSoon = sampleForecast.some((d) => d.rainChance >= 70);
+  const highWind = sampleForecast.some((d) => d.wind >= 20);
+  const goodPlanting = sampleWeather.temp >= 20 && sampleWeather.temp <= 32 && !highWind;
 
-    return [
-      goodPlanting
-        ? {
-            title: `Ideal for planting ${crop || "your crop"}`,
-            desc: `Temperature ${sampleWeather.temp}–${sampleWeather.feelsLike}°C. Light winds. Soil moisture favourable.`,
-            Icon: Sprout,
-          }
-        : {
-            title: `Planting not ideal today`,
-            desc: `Wait for cooler temps or lighter winds for best germination of ${crop || "your crop"}.`,
-            Icon: Sprout,
-          },
-      rainSoon
-        ? {
-            title: `No irrigation needed for ${crop || "your crop"}`,
-            desc: `Heavy rain expected within 24–48 hours. Conserve water and prepare drainage.`,
-            Icon: Droplets,
-          }
-        : {
-            title: `Irrigate ${crop || "your crop"} today`,
-            desc: `No rain expected. Monitor soil moisture and irrigate as needed.`,
-            Icon: Droplets,
-          },
-      highWind
-        ? {
-            title: `Avoid spraying pesticides/fertilizers`,
-            desc: `High winds expected — risk of drift/runoff. Reschedule spraying for calmer conditions.`,
-            Icon: ShieldAlert,
-          }
-        : {
-            title: `Good conditions for spraying`,
-            desc: `Low wind and no rain expected. Suitable for targeted application on ${crop || "your crop"}.`,
-            Icon: ShieldAlert,
-          },
-    ];
-  }, [crop]);
+  const cropLabel = crop || t("dashboard.notSet");
+
+  return [
+    goodPlanting
+      ? {
+          title: t("dashboard.advisory.planting.goodTitle", { crop: cropLabel }),
+          desc: t("dashboard.advisory.planting.goodDesc", { temp: sampleWeather.temp, feels: sampleWeather.feelsLike }),
+          Icon: Sprout,
+        }
+      : {
+          title: t("dashboard.advisory.planting.badTitle"),
+          desc: t("dashboard.advisory.planting.badDesc", { crop: cropLabel }),
+          Icon: Sprout,
+        },
+    rainSoon
+      ? {
+          title: t("dashboard.advisory.irrigation.goodTitle", { crop: cropLabel }),
+          desc: t("dashboard.advisory.irrigation.goodDesc"),
+          Icon: Droplets,
+        }
+      : {
+          title: t("dashboard.advisory.irrigation.badTitle", { crop: cropLabel }),
+          desc: t("dashboard.advisory.irrigation.badDesc"),
+          Icon: Droplets,
+        },
+    highWind
+      ? {
+          title: t("dashboard.advisory.spraying.badTitle"),
+          desc: t("dashboard.advisory.spraying.badDesc"),
+          Icon: ShieldAlert,
+        }
+      : {
+          title: t("dashboard.advisory.spraying.goodTitle"),
+          desc: t("dashboard.advisory.spraying.goodDesc", { crop: cropLabel }),
+          Icon: ShieldAlert,
+        },
+  ];
+}, [crop]);
 
   const IconFor = (name: ForecastDay["icon"]) => {
     switch (name) {
@@ -117,30 +122,33 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen">
-      <header className="px-6 pt-6 pb-2">
-        <h1 className="text-2xl font-bold">{location || "Your Location"}</h1>
-        <p className="text-muted-foreground">Primary crop: {crop || "Not set"}</p>
+      <header className="px-6 pt-6 pb-2 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">{location || t("dashboard.notSet")}</h1>
+          <p className="text-muted-foreground">{t("dashboard.primaryCropLabel", { crop: crop || t("dashboard.notSet") })}</p>
+        </div>
+        <LanguageSwitcher />
       </header>
       <main className="px-6 pb-16 space-y-8">
         {/* Current Weather */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl">Current Weather</CardTitle>
+            <CardTitle className="text-xl">{t("dashboard.currentWeather")}</CardTitle>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Thermometer className="" />
               <span>{sampleWeather.temp}°C</span>
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-            <div className="flex items-center gap-3"><Sun className="text-primary" /><div><div className="font-semibold">{sampleWeather.condition}</div><div className="text-sm text-muted-foreground">Feels like {sampleWeather.feelsLike}°C</div></div></div>
-            <div className="flex items-center gap-3"><Wind className="text-primary" /><div><div className="font-semibold">Wind</div><div className="text-sm text-muted-foreground">{sampleWeather.wind} km/h</div></div></div>
-            <div className="flex items-center gap-3"><Droplets className="text-primary" /><div><div className="font-semibold">Humidity</div><div className="text-sm text-muted-foreground">{sampleWeather.humidity}%</div></div></div>
+            <div className="flex items-center gap-3"><Sun className="text-primary" /><div><div className="font-semibold">{t(`dashboard.conditions.${sampleWeather.condition}`)}</div><div className="text-sm text-muted-foreground">{t("dashboard.labels.feelsLike", { temp: sampleWeather.feelsLike })}</div></div></div>
+            <div className="flex items-center gap-3"><Wind className="text-primary" /><div><div className="font-semibold">{t("dashboard.labels.wind")}</div><div className="text-sm text-muted-foreground">{sampleWeather.wind} km/h</div></div></div>
+            <div className="flex items-center gap-3"><Droplets className="text-primary" /><div><div className="font-semibold">{t("dashboard.labels.humidity")}</div><div className="text-sm text-muted-foreground">{sampleWeather.humidity}%</div></div></div>
           </CardContent>
         </Card>
 
         {/* 5-Day Forecast */}
         <section>
-          <h2 className="text-lg font-semibold mb-3">5-Day Forecast</h2>
+          <h2 className="text-lg font-semibold mb-3">{t("dashboard.forecast")}</h2>
           <div className="grid grid-cols-5 gap-2 sm:gap-4">
             {sampleForecast.map((d) => (
               <Card key={d.day}>
@@ -156,7 +164,7 @@ const Dashboard = () => {
 
         {/* Advisories */}
         <section>
-          <h2 className="text-lg font-semibold mb-3">Advisories</h2>
+          <h2 className="text-lg font-semibold mb-3">{t("dashboard.advisories")}</h2>
           <div className="grid grid-cols-1 gap-4">
             {advisories.map(({ title, desc, Icon }, i) => (
               <Card key={i}>
@@ -175,13 +183,13 @@ const Dashboard = () => {
         {/* Alerts */}
         <section className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Critical Weather Alerts</h2>
-            <p className="text-sm text-muted-foreground">Get notified about heavy rain, frost, or storms.</p>
+            <h2 className="text-lg font-semibold">{t("dashboard.alerts.title")}</h2>
+            <p className="text-sm text-muted-foreground">{t("dashboard.alerts.desc")}</p>
           </div>
           {alertsEnabled !== "granted" ? (
-            <Button variant="hero" onClick={enableAlerts}>Enable Alerts</Button>
+            <Button variant="hero" onClick={enableAlerts}>{t("dashboard.alerts.enable")}</Button>
           ) : (
-            <Button variant="secondary" disabled>Alerts Enabled</Button>
+            <Button variant="secondary" disabled>{t("dashboard.alerts.enabled")}</Button>
           )}
         </section>
       </main>
