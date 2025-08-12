@@ -3,15 +3,94 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/i18n/i18n";
+import { supabase } from "@/integrations/supabase/client";
 
-const crops = ["Rice", "Maize", "Cotton", "Groundnut"];
+
+type CropOption = { value: string; label: string };
 
 const OnboardingCrop = () => {
   const navigate = useNavigate();
   const [crop, setCrop] = useState<string>("");
-  const { t } = useI18n();
+  const [options, setOptions] = useState<CropOption[]>([]);
+  const { t, lang } = useI18n();
+
+  useEffect(() => {
+    const loadCrops = async () => {
+      const state = localStorage.getItem("userState") || "Andhra Pradesh";
+      const village = localStorage.getItem("userLocation") || "";
+
+      let query = supabase
+        .from("crop_data")
+        .select("crop_name_english, crop_name_telugu, state_english, village_english")
+        .eq("state_english", state);
+
+      if (village) query = query.eq("village_english", village);
+
+      const { data, error } = await query.order("crop_name_english", { ascending: true });
+
+      if (error) {
+        console.error("Failed to fetch crops:", error);
+      }
+
+      let rows = data || [];
+
+      if (!rows.length) {
+        const { data: stateOnly } = await supabase
+          .from("crop_data")
+          .select("crop_name_english, crop_name_telugu")
+          .eq("state_english", state)
+          .order("crop_name_english", { ascending: true });
+        rows = stateOnly || [];
+      }
+
+      const dedup = new Map<string, { en: string; te?: string }>();
+      rows.forEach((r: any) => {
+        const en = r.crop_name_english?.trim();
+        const te = r.crop_name_telugu?.trim();
+        if (en && !dedup.has(en)) dedup.set(en, { en, te });
+      });
+
+      let opts: CropOption[] = Array.from(dedup.values()).map(({ en, te }) => ({
+        value: en,
+        label: lang === "te" && te ? te : en,
+      }));
+
+      if (!opts.length) {
+        const fallback: Array<{ en: string; te: string }> = [
+          { en: "Rice", te: "వరి" },
+          { en: "Maize", te: "మొక్కజొన్న" },
+          { en: "Groundnut", te: "పల్లి" },
+          { en: "Cotton", te: "పత్తి" },
+          { en: "Sugarcane", te: "చెరకు" },
+          { en: "Chillies", te: "మిరపకాయలు" },
+          { en: "Tobacco", te: "పొగాకు" },
+          { en: "Turmeric", te: "పసుపు" },
+          { en: "Red gram", te: "కందిపప్పు" },
+          { en: "Black gram", te: "మినుములు" },
+          { en: "Green gram", te: "పెసలు" },
+          { en: "Sesame", te: "నువ్వులు" },
+          { en: "Sunflower", te: "సూర్యకాంతి" },
+          { en: "Jowar", te: "జొన్న" },
+          { en: "Bajra", te: "సజ్జలు" },
+          { en: "Banana", te: "అరటి" },
+          { en: "Mango", te: "మామిడి" },
+          { en: "Coconut", te: "కొబ్బరి" },
+          { en: "Papaya", te: "బొప్పాయి" },
+          { en: "Tomato", te: "టమాటా" },
+          { en: "Brinjal", te: "వంకాయ" },
+          { en: "Okra", te: "బెండకాయ" },
+          { en: "Onion", te: "ఉల్లి" },
+        ];
+        opts = fallback.map(({ en, te }) => ({ value: en, label: lang === "te" ? te : en }));
+      }
+
+      setOptions(opts);
+    };
+
+    loadCrops();
+  }, [lang]);
 
   const save = () => {
     if (!crop) {
@@ -38,8 +117,8 @@ const OnboardingCrop = () => {
                 <SelectValue placeholder={t("onboarding.crop.placeholder")} />
               </SelectTrigger>
               <SelectContent>
-                {crops.map((c) => (
-                  <SelectItem key={c} value={c}>{t(`crops.${c}`)}</SelectItem>
+                {options.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -55,3 +134,4 @@ const OnboardingCrop = () => {
 };
 
 export default OnboardingCrop;
+

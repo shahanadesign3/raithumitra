@@ -27,8 +27,8 @@ const App = () => (
             <Route path="/" element={<LanguageSelect />} />
             <Route path="/language" element={<LanguageSelect />} />
             <Route path="/welcome" element={<Index />} />
-            <Route path="/onboarding/location" element={<OnboardingLocation />} />
-            <Route path="/onboarding/crop" element={<OnboardingCrop />} />
+            <Route path="/onboarding/location" element={<ProtectedRoute><OnboardingLocation /></ProtectedRoute>} />
+            <Route path="/onboarding/crop" element={<ProtectedRoute><OnboardingCrop /></ProtectedRoute>} />
             <Route path="/auth/login" element={<AuthLogin />} />
             <Route path="/auth/signup" element={<AuthSignup />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

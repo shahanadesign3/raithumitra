@@ -20,7 +20,7 @@ const AuthLogin: React.FC = () => {
       try { await supabase.auth.signOut({ scope: "global" }); } catch {}
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      window.location.href = "/dashboard";
+      window.location.href = "/onboarding/location";
     } catch (error: any) {
       toast({ title: "Login failed", description: error.message || "Please try again.", variant: "destructive" });
     } finally {
@@ -31,7 +31,7 @@ const AuthLogin: React.FC = () => {
   const handleGoogle = async () => {
     setLoading(true);
     try {
-      const redirectTo = `${window.location.origin}/dashboard`;
+      const redirectTo = `${window.location.origin}/onboarding/location`;
       const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
       if (error) throw error;
     } catch (error: any) {

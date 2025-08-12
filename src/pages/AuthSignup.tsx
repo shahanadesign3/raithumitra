@@ -33,7 +33,7 @@ const AuthSignup: React.FC = () => {
   const handleGoogle = async () => {
     setLoading(true);
     try {
-      const redirectTo = `${window.location.origin}/dashboard`;
+      const redirectTo = `${window.location.origin}/onboarding/location`;
       const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
       if (error) throw error;
     } catch (error: any) {
