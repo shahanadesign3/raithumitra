@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      crop_data: {
+        Row: {
+          crop_name_english: string | null
+          crop_name_telugu: string | null
+          id: string
+          state_english: string | null
+          state_telugu: string | null
+          village_english: string | null
+          village_telugu: string | null
+        }
+        Insert: {
+          crop_name_english?: string | null
+          crop_name_telugu?: string | null
+          id?: string
+          state_english?: string | null
+          state_telugu?: string | null
+          village_english?: string | null
+          village_telugu?: string | null
+        }
+        Update: {
+          crop_name_english?: string | null
+          crop_name_telugu?: string | null
+          id?: string
+          state_english?: string | null
+          state_telugu?: string | null
+          village_english?: string | null
+          village_telugu?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          fcm_token: string | null
+          id: string
+          preferred_crop: string | null
+          selected_language: string | null
+          state: string | null
+          updated_at: string
+          village: string | null
+        }
+        Insert: {
+          created_at?: string
+          fcm_token?: string | null
+          id: string
+          preferred_crop?: string | null
+          selected_language?: string | null
+          state?: string | null
+          updated_at?: string
+          village?: string | null
+        }
+        Update: {
+          created_at?: string
+          fcm_token?: string | null
+          id?: string
+          preferred_crop?: string | null
+          selected_language?: string | null
+          state?: string | null
+          updated_at?: string
+          village?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
