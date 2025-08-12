@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/i18n/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { getGuestId } from "@/lib/guest";
 
 
 type CropOption = { value: string; label: string };
@@ -92,13 +93,34 @@ const OnboardingCrop = () => {
     loadCrops();
   }, [lang]);
 
-  const save = () => {
+  const save = async () => {
     if (!crop) {
       toast({ title: t("onboarding.crop.selectCrop"), description: t("onboarding.crop.subtitle") });
       return;
     }
+
+    // Persist locally for instant UX
     localStorage.setItem("cropType", crop);
-    toast({ title: t("onboarding.crop.saved"), description: t("onboarding.crop.savedDesc", { crop }) });
+
+    // Prepare payload for guest profile upsert via Edge Function
+    const state = localStorage.getItem("userState") || "";
+    const village = localStorage.getItem("userLocation") || "";
+    
+    try {
+      const id = getGuestId();
+      const { error } = await supabase.functions.invoke("guest-profile", {
+        body: { id, selected_language: lang, state, village, preferred_crop: crop },
+      });
+      if (error) {
+        console.error("Failed to save guest profile:", error);
+        toast({ title: t("common.error"), description: t("errors.saveFailed"), variant: "destructive" });
+      } else {
+        toast({ title: t("onboarding.crop.saved"), description: t("onboarding.crop.savedDesc", { crop }) });
+      }
+    } catch (e) {
+      console.error("Guest profile invoke failed", e);
+    }
+
     navigate("/dashboard");
   };
 

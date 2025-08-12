@@ -33,12 +33,12 @@ const LanguageSelect = () => {
       await Notification.requestPermission();
     }
     setShowConsent(false);
-    navigate("/auth/login");
+    navigate("/welcome");
   };
 
   const handleDeny = () => {
     setShowConsent(false);
-    navigate("/auth/login");
+    navigate("/welcome");
   };
 
   return (

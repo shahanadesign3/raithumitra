@@ -10,9 +10,6 @@ import OnboardingLocation from "./pages/OnboardingLocation";
 import OnboardingCrop from "./pages/OnboardingCrop";
 import Dashboard from "./pages/Dashboard";
 import LanguageSelect from "./pages/LanguageSelect";
-import AuthLogin from "./pages/AuthLogin";
-import AuthSignup from "./pages/AuthSignup";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -27,11 +24,9 @@ const App = () => (
             <Route path="/" element={<LanguageSelect />} />
             <Route path="/language" element={<LanguageSelect />} />
             <Route path="/welcome" element={<Index />} />
-            <Route path="/onboarding/location" element={<ProtectedRoute><OnboardingLocation /></ProtectedRoute>} />
-            <Route path="/onboarding/crop" element={<ProtectedRoute><OnboardingCrop /></ProtectedRoute>} />
-            <Route path="/auth/login" element={<AuthLogin />} />
-            <Route path="/auth/signup" element={<AuthSignup />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/onboarding/location" element={<OnboardingLocation />} />
+            <Route path="/onboarding/crop" element={<OnboardingCrop />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

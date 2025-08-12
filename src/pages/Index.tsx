@@ -28,9 +28,6 @@ const Index = () => {
           <Button variant="hero" size="lg" onClick={() => navigate("/onboarding/location")}>
             {t("index.getStarted")}
           </Button>
-          <Button variant="outline" size="lg" onClick={() => navigate("/dashboard")}>
-            {t("index.skip")}
-          </Button>
         </div>
       </main>
     </div>
