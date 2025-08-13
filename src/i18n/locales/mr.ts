@@ -9,6 +9,8 @@ const mr = {
     kannada: "ಕನ್ನಡ",
     save: "सेव्ह",
     back: "मागे",
+    error: "त्रुटी",
+    errors: { saveFailed: "सेव्ह करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा." },
   },
   index: { title: "Raithu Mitra", subtitle: "स्थानिक हवामान आणि पीक सल्ले.", getStarted: "सुरू करा", skip: "डॅशबोर्डवर जा" },
   languageSelect: { title: "आपली भाषा निवडा", subtitle: "नंतर बदलू शकता." },

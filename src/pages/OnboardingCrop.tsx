@@ -112,7 +112,8 @@ const OnboardingCrop = () => {
       });
       if (error) {
         console.error("Failed to save guest profile:", error);
-        toast({ title: t("common.error"), description: t("errors.saveFailed"), variant: "destructive" });
+        toast({ title: t("common.error"), description: t("common.errors.saveFailed"), variant: "destructive" });
+        return;
       } else {
         toast({ title: t("onboarding.crop.saved"), description: t("onboarding.crop.savedDesc", { crop }) });
       }

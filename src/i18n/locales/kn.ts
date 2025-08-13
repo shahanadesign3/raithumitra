@@ -9,6 +9,8 @@ const kn = {
     kannada: "ಕನ್ನಡ",
     save: "ಸೇವ್",
     back: "ಹಿಂದೆ",
+    error: "ದೋಷ",
+    errors: { saveFailed: "ಸೇವ್ ವಿಫಲವಾಯಿತು. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ." },
   },
   index: { title: "Raithu Mitra", subtitle: "ಸ್ಥಳೀಯ ಹವಾಮಾನ ಮತ್ತು ಬೆಳೆ ಸಲಹೆಗಳು.", getStarted: "ಪ್ರಾರಂಭಿಸಿ", skip: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹೋಗಿ" },
   languageSelect: { title: "ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ", subtitle: "ನಂತರ ಬದಲಾಯಿಸಬಹುದು." },

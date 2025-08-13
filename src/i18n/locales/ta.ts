@@ -9,6 +9,8 @@ const ta = {
     kannada: "ಕನ್ನಡ",
     save: "சேமிக்க",
     back: "பின்",
+    error: "பிழை",
+    errors: { saveFailed: "சேமிப்பதில் தோல்வி. தயவுசெய்து மீண்டும் முயற்சிக்கவும்." },
   },
   index: { title: "Raithu Mitra", subtitle: "உங்கள் வயலுக்கான காலநிலை மற்றும் பயிர் ஆலோசனை.", getStarted: "தொடங்கு", skip: "டாஷ்போர்டுக்கு செல்ல" },
   languageSelect: { title: "உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்", subtitle: "பின்னர் மாற்றலாம்." },

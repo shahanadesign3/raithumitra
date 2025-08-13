@@ -52,7 +52,7 @@ const OnboardingLocation = () => {
       toast({ title: t("onboarding.location.saved"), description: t("onboarding.location.savedDesc", { place: city }) });
     } catch (err: any) {
       console.error("guest-profile save failed", err);
-      toast({ title: t("common.error"), description: t("errors.saveFailed"), variant: "destructive" });
+      toast({ title: t("common.error"), description: t("common.errors.saveFailed"), variant: "destructive" });
     }
 
     navigate("/onboarding/crop");

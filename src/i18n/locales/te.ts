@@ -9,6 +9,8 @@ const te = {
     kannada: "ಕನ್ನಡ",
     save: "సేవ్",
     back: "వెనక్కి",
+    error: "లోపం",
+    errors: { saveFailed: "సేవ్ చేయడం విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి." },
   },
   index: {
     title: "రైతు మిత్ర",

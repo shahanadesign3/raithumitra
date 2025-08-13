@@ -9,6 +9,8 @@ const en = {
     kannada: "ಕನ್ನಡ",
     save: "Save",
     back: "Back",
+    error: "Error",
+    errors: { saveFailed: "Failed to save. Please try again." },
   },
   index: {
     title: "Raithu Mitra",

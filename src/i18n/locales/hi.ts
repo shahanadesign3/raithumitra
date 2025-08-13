@@ -9,6 +9,8 @@ const hi = {
     kannada: "ಕನ್ನಡ",
     save: "सेव",
     back: "वापस",
+    error: "त्रुटि",
+    errors: { saveFailed: "सेव करने में विफल। कृपया पुनः प्रयास करें।" },
   },
   index: { title: "Raithu Mitra", subtitle: "स्थानीय मौसम और फसल सलाह।", getStarted: "शुरू करें", skip: "डैशबोर्ड पर जाएँ" },
   languageSelect: { title: "अपनी भाषा चुनें", subtitle: "आप बाद में बदल सकते हैं।" },
