@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,23 +54,6 @@ const Auth = () => {
     }
   };
 
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    try {
-      cleanupAuthState();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}/onboarding/location` },
-      });
-      if (error) throw error;
-      // redirect handled by provider
-    } catch (err: any) {
-      toast({ title: t("common.error"), description: err?.message || t("auth.error"), variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center px-6 pb-16">
       <Card className="w-full max-w-md">
@@ -93,12 +76,6 @@ const Auth = () => {
               {mode === "login" ? t("auth.login") : t("auth.signup")}
             </Button>
           </form>
-
-          <div className="my-4 flex items-center gap-3"><Separator className="flex-1" /><span className="text-xs text-muted-foreground">{t("auth.or")}</span><Separator className="flex-1" /></div>
-
-          <Button type="button" variant="outline" className="w-full" onClick={signInWithGoogle} disabled={loading}>
-            Continue with Google
-          </Button>
 
           <div className="mt-4 text-sm text-center">
             {mode === "login" ? (

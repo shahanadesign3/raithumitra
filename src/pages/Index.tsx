@@ -25,7 +25,7 @@ const Index = () => {
           {t("index.subtitle")}
         </p>
         <div className="mt-8 flex flex-col gap-3 w-full max-w-xs">
-          <Button variant="hero" size="lg" onClick={() => navigate("/auth")}>
+          <Button variant="hero" size="lg" onClick={() => navigate("/language")}>
             {t("index.getStarted")}
           </Button>
         </div>

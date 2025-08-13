@@ -33,12 +33,12 @@ const LanguageSelect = () => {
       await Notification.requestPermission();
     }
     setShowConsent(false);
-    navigate("/auth");
+    navigate("/onboarding/location");
   };
 
   const handleDeny = () => {
     setShowConsent(false);
-    navigate("/auth");
+    navigate("/onboarding/location");
   };
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 pb-16">
