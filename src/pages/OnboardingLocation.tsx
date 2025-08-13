@@ -6,12 +6,12 @@ import { toast } from "@/hooks/use-toast";
 import { useEffect, useMemo, useState } from "react";
 import { IN_STATES, STATE_CITIES } from "@/data/locations";
 import { useI18n } from "@/i18n/i18n";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { getGuestId } from "@/lib/guest";
 
 const OnboardingLocation = () => {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
-  const { save: saveProfile } = useUserProfile();
 
   const defaultState = "Andhra Pradesh";
   const [stateSel, setStateSel] = useState<string>(defaultState);
@@ -41,15 +41,21 @@ const OnboardingLocation = () => {
       return;
     }
 
+    localStorage.setItem("userState", stateSel);
+    localStorage.setItem("userLocation", city);
+
     try {
-      await saveProfile({ state: stateSel, village: city });
-      localStorage.setItem("userState", stateSel);
-      localStorage.setItem("userLocation", city);
+      const id = getGuestId();
+      await supabase.functions.invoke("guest-profile", {
+        body: { id, state: stateSel, village: city },
+      });
       toast({ title: t("onboarding.location.saved"), description: t("onboarding.location.savedDesc", { place: city }) });
-      navigate("/onboarding/crop");
     } catch (err: any) {
-      toast({ title: t("common.error"), description: err?.message || t("errors.saveFailed"), variant: "destructive" });
+      console.error("guest-profile save failed", err);
+      toast({ title: t("common.error"), description: t("errors.saveFailed"), variant: "destructive" });
     }
+
+    navigate("/onboarding/crop");
   };
 
   return (

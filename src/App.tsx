@@ -11,8 +11,6 @@ import OnboardingCrop from "./pages/OnboardingCrop";
 import Dashboard from "./pages/Dashboard";
 import LanguageSelect from "./pages/LanguageSelect";
 import FCMInitializer from "@/components/FCMInitializer";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -25,15 +23,12 @@ const App = () => (
         <FCMInitializer />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LanguageSelect />} />
+            <Route path="/" element={<Index />} />
             <Route path="/language" element={<LanguageSelect />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/auth/login" element={<Auth />} />
-            <Route path="/auth/signup" element={<Auth />} />
             <Route path="/welcome" element={<Index />} />
-            <Route path="/onboarding/location" element={<ProtectedRoute><OnboardingLocation /></ProtectedRoute>} />
-            <Route path="/onboarding/crop" element={<ProtectedRoute><OnboardingCrop /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/onboarding/location" element={<OnboardingLocation />} />
+            <Route path="/onboarding/crop" element={<OnboardingCrop />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
