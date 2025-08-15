@@ -24,5 +24,5 @@ export const getMessagingIfSupported = () => {
   return _messagingPromise;
 };
 
-// IMPORTANT: Replace with your Web Push certificate public key from Firebase Console → Cloud Messaging → Web Push certificates
-export const VAPID_PUBLIC_KEY = "ADD_YOUR_WEB_PUSH_CERT_PUBLIC_KEY";
+// Web Push certificate public key from Firebase Console
+export const VAPID_PUBLIC_KEY = "BGq8UaHNKTk8sKJOd1w8RyTpJzb5cGAZlLBSvUIkYAV6PQGz34kBHqwEXD5BYXJHf7RK8TjGnmLXnJo5-rRGlGE";
