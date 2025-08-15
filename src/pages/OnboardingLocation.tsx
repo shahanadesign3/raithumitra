@@ -46,13 +46,42 @@ const OnboardingLocation = () => {
 
     try {
       const id = getGuestId();
-      await supabase.functions.invoke("guest-profile", {
-        body: { id, state: stateSel, village: city },
-      });
-      toast({ title: t("onboarding.location.saved"), description: t("onboarding.location.savedDesc", { place: city }) });
+      console.log("Saving location for guest ID:", id);
+      
+      // Try edge function first
+      try {
+        const { data, error } = await supabase.functions.invoke("guest-profile", {
+          body: { id, state: stateSel, village: city },
+        });
+        
+        if (error) {
+          throw new Error(`Edge function error: ${error.message}`);
+        }
+        
+        toast({ title: t("onboarding.location.saved"), description: t("onboarding.location.savedDesc", { place: city }) });
+      } catch (edgeFunctionError) {
+        console.warn("Edge function failed, trying direct database upsert:", edgeFunctionError);
+        
+        // Fallback: Direct database upsert
+        const { error: dbError } = await supabase
+          .from("user_profiles")
+          .upsert({
+            id,
+            state: stateSel,
+            village: city,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "id" });
+
+        if (dbError) {
+          throw new Error(`Database error: ${dbError.message}`);
+        }
+        
+        toast({ title: t("onboarding.location.saved"), description: t("onboarding.location.savedDesc", { place: city }) });
+      }
     } catch (err: any) {
-      console.error("guest-profile save failed", err);
-      toast({ title: t("common.error"), description: t("common.errors.saveFailed"), variant: "destructive" });
+      console.error("All save methods failed:", err);
+      toast({ title: t("common.error"), description: err.message || t("common.errors.saveFailed"), variant: "destructive" });
+      return;
     }
 
     navigate("/onboarding/crop");

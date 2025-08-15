@@ -13,18 +13,28 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE");
 function jsonResponse(status: number, data: any, headers: HeadersInit = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json", "access-control-allow-origin": "*", ...headers },
+    headers: { 
+      "content-type": "application/json", 
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST, OPTIONS", 
+      "access-control-allow-headers": "content-type, authorization, x-client-info, apikey",
+      ...headers 
+    },
   });
 }
 
 serve(async (req) => {
+  console.log(`Received ${req.method} request to guest-profile`);
+  
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
+    console.log("Handling CORS preflight");
     return new Response(null, {
+      status: 200,
       headers: {
         "access-control-allow-origin": "*",
         "access-control-allow-methods": "POST, OPTIONS",
-        "access-control-allow-headers": "content-type, authorization",
+        "access-control-allow-headers": "content-type, authorization, x-client-info, apikey",
       },
     });
   }
@@ -44,6 +54,7 @@ serve(async (req) => {
     return jsonResponse(400, { error: "Invalid JSON body" });
   }
 
+  console.log("Received payload:", body);
   const { id, selected_language, state, village, preferred_crop, fcm_token } = body || {};
   if (!id || typeof id !== "string") {
     return jsonResponse(400, { error: "Missing id" });
@@ -56,6 +67,7 @@ serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+  console.log("Attempting upsert with admin client");
   const { error } = await admin
     .from("user_profiles")
     .upsert(
@@ -72,8 +84,10 @@ serve(async (req) => {
     );
 
   if (error) {
+    console.error("Database error:", error);
     return jsonResponse(500, { error: error.message });
   }
 
+  console.log("Profile upserted successfully");
   return jsonResponse(200, { success: true });
 });

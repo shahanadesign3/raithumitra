@@ -107,21 +107,54 @@ const OnboardingCrop = () => {
     
     try {
       const id = getGuestId();
-      const { error } = await supabase.functions.invoke("guest-profile", {
-        body: { id, selected_language: lang, state, village, preferred_crop: crop },
-      });
-      if (error) {
-        console.error("Failed to save guest profile:", error);
-        toast({ title: t("common.error"), description: t("common.errors.saveFailed"), variant: "destructive" });
-        return;
-      } else {
+      console.log("Attempting to save guest profile with ID:", id);
+      
+      // Try edge function first
+      try {
+        const { data, error } = await supabase.functions.invoke("guest-profile", {
+          body: { id, selected_language: lang, state, village, preferred_crop: crop },
+        });
+        
+        console.log("Edge function response:", { data, error });
+        
+        if (error) {
+          throw new Error(`Edge function error: ${error.message}`);
+        }
+        
         toast({ title: t("onboarding.crop.saved"), description: t("onboarding.crop.savedDesc", { crop }) });
-      }
-    } catch (e) {
-      console.error("Guest profile invoke failed", e);
-    }
+        navigate("/dashboard");
+        return;
+      } catch (edgeFunctionError) {
+        console.warn("Edge function failed, trying direct database upsert:", edgeFunctionError);
+        
+        // Fallback: Direct database upsert (this should work with our open RLS policies)
+        const { error: dbError } = await supabase
+          .from("user_profiles")
+          .upsert({
+            id,
+            selected_language: lang,
+            state,
+            village,
+            preferred_crop: crop,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "id" });
 
-    navigate("/dashboard");
+        if (dbError) {
+          throw new Error(`Database error: ${dbError.message}`);
+        }
+        
+        toast({ title: t("onboarding.crop.saved"), description: t("onboarding.crop.savedDesc", { crop }) });
+        navigate("/dashboard");
+        return;
+      }
+    } catch (e: any) {
+      console.error("All save methods failed:", e);
+      toast({ 
+        title: t("common.error"), 
+        description: e.message || t("common.errors.saveFailed"), 
+        variant: "destructive" 
+      });
+    }
   };
 
   return (
