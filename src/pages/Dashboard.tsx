@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sun, CloudRain, Thermometer, Wind, Droplets, Sprout, ShieldAlert } from "lucide-react";
+import { Sun, CloudRain, Thermometer, Wind, Droplets, Sprout, ShieldAlert, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/i18n/i18n";
 import { useWeather } from "@/hooks/useWeather";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 type ForecastDay = {
   day: string;
@@ -38,14 +39,21 @@ const Dashboard = () => {
   const { t } = useI18n();
   const [alertsEnabled, setAlertsEnabled] = useState<"granted" | "denied" | "default">("default");
   const { current, forecast, loading, error } = useWeather();
+  const { profile } = useUserProfile();
 
-  const location = localStorage.getItem("userLocation");
-  const crop = localStorage.getItem("cropType");
+  // Get data from profile or fallback to localStorage
+  const location = profile?.village && profile?.state 
+    ? `${profile.village}, ${profile.state}` 
+    : localStorage.getItem("userLocation");
+  const crop = profile?.preferred_crop || localStorage.getItem("cropType");
 
   useEffect(() => {
-    if (!location) navigate("/onboarding/location");
-    else if (!crop) navigate("/onboarding/crop");
-  }, [location, crop, navigate]);
+    if (!profile?.village && !localStorage.getItem("userLocation")) {
+      navigate("/onboarding/location");
+    } else if (!profile?.preferred_crop && !localStorage.getItem("cropType")) {
+      navigate("/onboarding/crop");
+    }
+  }, [profile, navigate]);
 
   useEffect(() => {
     if (typeof Notification !== "undefined") {
@@ -68,50 +76,56 @@ const enableAlerts = async () => {
 };
 
 const advisories = useMemo(() => {
-  const fc = (forecast && forecast.length > 0 ? forecast : sampleForecast);
-  const ct = current ?? sampleWeather;
-  const rainSoon = fc.some((d) => d.rainChance >= 70);
-  const highWind = fc.some((d) => d.wind >= 20);
-  const goodPlanting = ct.temp >= 20 && ct.temp <= 32 && !highWind;
-
-  const cropLabel = crop || t("dashboard.notSet");
-
-  return [
-    goodPlanting
-      ? {
-          title: t("dashboard.advisory.planting.goodTitle", { crop: cropLabel }),
-          desc: t("dashboard.advisory.planting.goodDesc", { temp: ct.temp, feels: ct.feelsLike }),
-          Icon: Sprout,
-        }
-      : {
-          title: t("dashboard.advisory.planting.badTitle"),
-          desc: t("dashboard.advisory.planting.badDesc", { crop: cropLabel }),
-          Icon: Sprout,
-        },
-    rainSoon
-      ? {
-          title: t("dashboard.advisory.irrigation.goodTitle", { crop: cropLabel }),
-          desc: t("dashboard.advisory.irrigation.goodDesc"),
-          Icon: Droplets,
-        }
-      : {
-          title: t("dashboard.advisory.irrigation.badTitle", { crop: cropLabel }),
-          desc: t("dashboard.advisory.irrigation.badDesc"),
-          Icon: Droplets,
-        },
-    highWind
-      ? {
-          title: t("dashboard.advisory.spraying.badTitle"),
-          desc: t("dashboard.advisory.spraying.badDesc"),
-          Icon: ShieldAlert,
-        }
-      : {
-          title: t("dashboard.advisory.spraying.goodTitle"),
-          desc: t("dashboard.advisory.spraying.goodDesc", { crop: cropLabel }),
-          Icon: ShieldAlert,
-        },
-  ];
-}, [forecast, current, crop, t]);
+  if (!current) return [];
+  
+  const conditions = [];
+  
+  // Temperature-based advisories
+  if (current.temp > 35) {
+    conditions.push({
+      icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
+      text: t("dashboard.advisories.heatWave")
+    });
+  }
+  
+  // Rain-based advisories  
+  if (current.main === "Rain" || current.main === "Thunderstorm") {
+    conditions.push({
+      icon: <Droplets className="w-5 h-5 text-blue-500" />,
+      text: t("dashboard.advisories.rain")
+    });
+  }
+  
+  // Dynamic planting advisories based on weather conditions
+  const temp = current.temp;
+  const humidity = current.humidity;
+  const isRainy = current.main === "Rain" || current.main === "Thunderstorm";
+  const isClear = current.main === "Clear" || current.main === "Clouds";
+  
+  // Ideal conditions: 20-30°C, not too humid, not rainy
+  if (temp >= 20 && temp <= 30 && humidity < 80 && !isRainy && isClear) {
+    conditions.push({
+      icon: <Sprout className="w-5 h-5 text-green-500" />,
+      text: t("dashboard.advisories.ideal")
+    });
+  }
+  // Good conditions: 18-35°C, moderate conditions
+  else if (temp >= 18 && temp <= 35 && humidity < 85 && !isRainy) {
+    conditions.push({
+      icon: <Sprout className="w-5 h-5 text-yellow-500" />,
+      text: t("dashboard.advisories.good")
+    });
+  }
+  // Not ideal conditions
+  else {
+    conditions.push({
+      icon: <Sprout className="w-5 h-5 text-red-500" />,
+      text: t("dashboard.advisories.notIdeal")
+    });
+  }
+  
+  return conditions;
+}, [current, t]);
 
   const conditionKey = useMemo(() => {
     const main = current?.main;
@@ -182,15 +196,14 @@ const advisories = useMemo(() => {
 
         {/* Advisories */}
         <section>
-          <h2 className="text-lg font-semibold mb-3">{t("dashboard.advisories")}</h2>
+          <h2 className="text-lg font-semibold mb-3">Advisories</h2>
           <div className="grid grid-cols-1 gap-4">
-            {advisories.map(({ title, desc, Icon }, i) => (
+            {advisories.map((advisory, i) => (
               <Card key={i}>
                 <CardContent className="py-4 flex items-start gap-3">
-                  <Icon className="text-primary" />
+                  {advisory.icon}
                   <div>
-                    <div className="font-semibold">{title}</div>
-                    <div className="text-sm text-muted-foreground">{desc}</div>
+                    <div className="text-sm text-muted-foreground">{advisory.text}</div>
                   </div>
                 </CardContent>
               </Card>

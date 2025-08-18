@@ -68,7 +68,13 @@ const en = {
     notSet: "Not set",
     currentWeather: "Current Weather",
     forecast: "5-Day Forecast",
-    advisories: "Advisories",
+    advisories: {
+      heatWave: "High temperature warning - protect crops from heat stress",
+      rain: "Heavy rain expected - ensure proper drainage",
+      ideal: "Ideal conditions for planting",
+      good: "Good conditions for most crop activities", 
+      notIdeal: "Not ideal for planting today",
+    },
     alerts: {
       title: "Critical Weather Alerts",
       desc: "Get notified about heavy rain, frost, or storms.",

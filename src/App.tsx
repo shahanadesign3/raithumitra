@@ -11,8 +11,25 @@ import OnboardingCrop from "./pages/OnboardingCrop";
 import Dashboard from "./pages/Dashboard";
 import LanguageSelect from "./pages/LanguageSelect";
 import FCMInitializer from "@/components/FCMInitializer";
+import { useBackButton } from "@/hooks/useBackButton";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  useBackButton(); // Initialize back button handling
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/language" element={<LanguageSelect />} />
+      <Route path="/welcome" element={<Index />} />
+      <Route path="/onboarding/location" element={<OnboardingLocation />} />
+      <Route path="/onboarding/crop" element={<OnboardingCrop />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -22,16 +39,7 @@ const App = () => (
         <Sonner />
         <FCMInitializer />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/language" element={<LanguageSelect />} />
-            <Route path="/welcome" element={<Index />} />
-            <Route path="/onboarding/location" element={<OnboardingLocation />} />
-            <Route path="/onboarding/crop" element={<OnboardingCrop />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
         </BrowserRouter>
       </I18nProvider>
     </TooltipProvider>
